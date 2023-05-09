@@ -51,8 +51,21 @@ class MessageViewTestCase(TestCase):
 
         db.session.commit()
 
+    def test_add_message_unauthenticated(self):
+        """Return unauthorized when adding message as unauthorized user"""
+        response = self.client.get('messages/new',follow_redirects=True)
+        self.assertIn(b"Access unauthorized", response.data)
+    
+    def test_delete_message_unauthenticated(self):
+        """Return unauthorized when deleting message as unauthorized user"""
+        message = Message(text="Message text user1.", user_id=self.testuser.id)
+        db.session.add(message)
+        db.session.commit()
+        response = self.client.post(f'messages/{message.id}/delete',follow_redirects=True)
+        self.assertIn(b"Access unauthorized", response.data) 
+
     def test_add_message(self):
-        """Can use add a message?"""
+        """Add message as authorized user"""
 
         # Since we need to change the session to mimic logging in,
         # we need to use the changing-session trick:
@@ -71,3 +84,18 @@ class MessageViewTestCase(TestCase):
 
             msg = Message.query.one()
             self.assertEqual(msg.text, "Hello")
+
+    def test_delete_message(self):
+        """Delete message as authorized user"""
+
+        # Since we need to change the session to mimic logging in,
+        # we need to use the changing-session trick:
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+            addresp = c.post("/messages/new", data={"text": "Hello"})
+            msg = Message.query.one()
+            delresp = c.post(f"/messages/{msg.id}/delete", follow_redirects=True)
+            self.assertEqual(delresp.status_code, 200)
+            self.assertIn(b"Edit Profile", delresp.data)
