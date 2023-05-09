@@ -69,8 +69,7 @@ class UserModelTestCase(TestCase):
         self.assertEqual(len(u.followers), 0)
 
     def test_user_follows(self):
-        """Does is_following successfully detect when user2 is following user1?
-        Does is_following successfully detect when user1 is not following user2?"""
+        """Verify is_following successfully detects user following"""
         follow=Follows(user_being_followed_id=self.u1.id, user_following_id=self.u2.id)
         db.session.add(follow)
         db.session.commit()
@@ -79,8 +78,7 @@ class UserModelTestCase(TestCase):
 
 
     def test_is_followed_by(self):
-        """Does is_followed_by successfully detect when user1 is followed by user2?
-        Does is_followed_by successfully detect when user2 is not followed by user1?"""
+        """Verify is_followed_by successfully detects user followers"""
         follow=Follows(user_being_followed_id=self.u1.id, user_following_id=self.u2.id)
         db.session.add(follow)
         db.session.commit()
@@ -88,7 +86,7 @@ class UserModelTestCase(TestCase):
         self.assertFalse(User.is_followed_by(self.u2, self.u1))
 
     def test_successful_signup(self):
-        """Does User.signup successfully create a new user given valid credentials?"""
+        """Verify User.signup successfully create a new user given valid credentials"""
         user = User.signup("testsignup", "test@signup.com", "testpassword", None)
         db.session.add(user)
         db.session.commit()
@@ -96,31 +94,31 @@ class UserModelTestCase(TestCase):
         self.assertEqual(user.username, "testsignup")
 
     def test_invalid_signup_duplicate_username(self):
-        """Does User.signup fail to create a new user if username is a duplicate?"""
+        """Verify User.signup fails to create a new user if username is a duplicate"""
         user = User.signup("testuser1", "test@signup.com", "testpassword", None)
         db.session.add(user)
         with self.assertRaises(exc.IntegrityError) as context:
             db.session.commit()
 
     def test_invalid_signup_missing_username(self):
-        """Does User.signup fail to create a new user if username is missing?"""
+        """Verify User.signup fails to create a new user if username is missing"""
         user = User.signup(None, "test@signup.com", "testpassword", None)
         db.session.add(user)
         with self.assertRaises(exc.IntegrityError) as context:
             db.session.commit()
 
     def test_authenticate_user(self):
-        """Does User.authenticate successfully return a user when given a valid username and password?"""
+        """Verify User.authenticate successfully return a user when given a valid username and password"""
         user = User.authenticate("testuser1", "password")
         self.assertEqual(user, self.u1)
 
     def test_invalid_username_authenticate_user(self):
-        """Does User.authenticate fail to return a user when the username is invalid?"""
+        """Verify User.authenticate fail to return a user when the username is invalid"""
         user = User.authenticate("testuser5", "password")
         self.assertEqual(user, False)
 
     def test_invalid_password_authenticate_user(self):
-        """Does User.authenticate fail to return a user when the password is invalid?"""
+        """Verify User.authenticate fails to return a user when the password is invalid"""
         user = User.authenticate("testuser1", "passworddd")
         self.assertEqual(user, False)
 

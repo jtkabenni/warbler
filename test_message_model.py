@@ -43,23 +43,22 @@ class UserMessageTestCase(TestCase):
     def tearDown(self):
         db.session.rollback()
 
-
     def test_user_model(self):
         """Does basic model work?"""
-
         self.assertEqual(len(Message.query.all()), 2)
 
     def test_user_messages(self):
-        """Are added messages related to user?"""
+        """Verify added messages are associated with user"""
         user = User.query.get_or_404(self.u1.id)
         self.assertEqual(len(user.messages), 2)
+
     def test_message_content(self):
-        """Does message have correct text?"""
+        """Verify added message has correct text"""
         message = Message.query.get_or_404(self.m1.id)
         self.assertEqual(message.text, "Test message number 1.")
 
     def test_liked_messages(self):
-        """Are liked messages successfully detected?"""
+        """Verify liked messages are successfully detected."""
         likes=[Likes(user_id=self.u2.id, message_id=self.m1.id), Likes(user_id=self.u2.id, message_id=self.m2.id)]
         db.session.add_all(likes)
         db.session.commit()
